@@ -107,7 +107,7 @@ const CountdownTimer = ({ targetDate }: CountdownProps) => {
 
 
 function Homepage() {
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
