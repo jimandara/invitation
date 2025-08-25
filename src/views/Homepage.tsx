@@ -4,6 +4,7 @@ import { useState, useEffect, type JSX } from "react";
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
 import pictureUrl from "/arajimPIC.jpg";
 import pictureBG from "/bgpic2.jpg";
+import axios from 'axios'; // <-- GIDUGANG ANG AXIOS IMPORT
 
 // Shadcn UI and Lucide React Imports
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { 
   ChevronDown, Menu, Gift, Camera, Home, BookHeart, ClipboardList, 
   Heart, HelpCircle, PartyPopper, Users, Send, BellRing,
-  X, ArrowLeft, ArrowRight, ChevronUp // GIDUGANG ANG ChevronUp PARA SA SCROLL-TO-TOP BUTTON
+  X, ArrowLeft, ArrowRight, ChevronUp
 } from "lucide-react";
 
 // NAVLINKS (No Change)
@@ -138,7 +139,6 @@ function Homepage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // --- BAG-ONG FUNCTION PARA SA SMOOTH SCROLL ---
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -154,6 +154,48 @@ function Homepage() {
   const ceremonyVenue = "JAMC Tagoloan";
   const receptionVenue = "The Blue Leaf Filipinas";
   const receptionAddress = "Parañaque City";
+
+  const [formData, setFormData] = useState({
+    FullName: "",
+    Email: "",
+    Message: "",
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState("");
+
+  // Gi-improve ang type para sa event (e)
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // --- GI-UPDATE ANG SUBMIT HANDLER PARA MOGAMIT OG AXIOS ---
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus("");
+
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzp5Ux7CKPj6U3DNAAfCDBagaU9c4B7ESMqGs9dXtj_QBWd53H363gFc_qYt-gDOUn0BQ/exec'; 
+    
+    const formBody = new FormData();
+    formBody.append('FullName', formData.FullName);
+    formBody.append('Email', formData.Email);
+    formBody.append('Message', formData.Message);
+
+    axios.post(scriptURL, formBody)
+      .then(response => {
+        console.log('Success!', response);
+        setSubmitStatus("Thank you! Your RSVP has been submitted. 💖");
+        setFormData({ FullName: "", Email: "", Message: "" }); // Clear the form
+      })
+      .catch(error => {
+        console.error('Error!', error);
+        setSubmitStatus("Oops! Something went wrong. Please try again.");
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
+  };
 
   return (
     <div className="bg-background text-foreground">
@@ -387,46 +429,78 @@ function Homepage() {
           </div>
         </section>
 
-        <section id="registry" className="flex items-center justify-center min-h-screen p-4 sm:p-8 py-32 relative">
-          <div className="container mx-auto max-w-3xl">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              viewport={{ once: true }}
-              className="bg-black/20 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl p-8 md:p-12"
-            >
-              <h2 className=" text-5xl md:text-6xl text-center text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-pink-400 to-red-500 mb-8">
-                Guest Registry
-              </h2>
-              <p className="text-center text-white/80 text-xl mb-10">
-                We would love to know if you can celebrate with us.<br />Please fill out the form below 💌
-              </p>
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-white/70 mb-2">Full Name</label>
-                    <input type="text" className="w-full px-5 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-all" placeholder="Your Name" required/>
-                  </div>
-                  <div>
-                    <label className="block text-white/70 mb-2">Email</label>
-                    <input type="email" className="w-full px-5 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-all" placeholder="you@example.com" required/>
-                  </div>
+         <section id="registry" className="flex items-center justify-center min-h-screen p-4 sm:p-8 py-32 relative">
+        <div className="container mx-auto max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            viewport={{ once: true }}
+            className="bg-black/20 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl p-8 md:p-12"
+          >
+            <h2 className=" text-5xl md:text-6xl text-center text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-pink-400 to-red-500 mb-8">
+              Guest Registry
+            </h2>
+            <p className="text-center text-white/80 text-xl mb-10">
+              We would love to know if you can celebrate with us.<br />Please fill out the form below 💌
+            </p>
+            
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-white/70 mb-2">Full Name</label>
+                  <input 
+                    type="text" 
+                    name="FullName"
+                    value={formData.FullName}
+                    onChange={handleInputChange}
+                    className="w-full px-5 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-all" 
+                    placeholder="Your Name" 
+                    required
+                  />
                 </div>
                 <div>
-                  <label className="block text-white/70 mb-2">Message</label>
-                  <textarea rows={4} className="w-full px-5 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-all" placeholder="Leave a sweet message for the couple..."></textarea>
+                  <label className="block text-white/70 mb-2">Email</label>
+                  <input 
+                    type="email" 
+                    name="Email"
+                    value={formData.Email}
+                    onChange={handleInputChange}
+                    className="w-full px-5 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-all" 
+                    placeholder="you@example.com" 
+                    required
+                  />
                 </div>
-                <div className="flex justify-center pt-4">
-                  <Button type="submit" className="px-10 py-7 rounded-full shadow-lg text-xl bg-gradient-to-r from-rose-500 to-red-500 hover:shadow-rose-400/40 hover:scale-105 transition-all duration-300 flex items-center gap-2" size="lg">
-                    <Send className="h-5 w-5"/>
-                    Submit
-                  </Button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        </section>
+              </div>
+              <div>
+                <label className="block text-white/70 mb-2">Message</label>
+                <textarea 
+                  rows={4} 
+                  name="Message"
+                  value={formData.Message}
+                  onChange={handleInputChange}
+                  className="w-full px-5 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-all" 
+                  placeholder="Leave a sweet message for the couple..."
+                ></textarea>
+              </div>
+              <div className="flex flex-col items-center justify-center pt-4">
+                <Button 
+                  type="submit" 
+                  className="px-10 py-7 rounded-full shadow-lg text-xl bg-gradient-to-r from-rose-500 to-red-500 hover:shadow-rose-400/40 hover:scale-105 transition-all duration-300 flex items-center gap-2" 
+                  size="lg"
+                  disabled={isSubmitting}
+                >
+                  <Send className="h-5 w-5"/>
+                  {isSubmitting ? 'Submitting...' : 'Submit'}
+                </Button>
+                {submitStatus && (
+                  <p className="mt-6 text-center text-rose-200">{submitStatus}</p>
+                )}
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      </section>
       </div>
       
       <AnimatePresence>
@@ -467,7 +541,6 @@ function Homepage() {
         )}
       </AnimatePresence>
       
-      {/* --- BAG-O NGA SCROLL-TO-TOP BUTTON --- */}
       <AnimatePresence>
         {scrolled && (
           <motion.button
