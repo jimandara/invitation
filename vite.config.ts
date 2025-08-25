@@ -7,12 +7,8 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 export default defineConfig({
   plugins: [react(),
     viteStaticCopy({
-      targets: [
-        {
-          src: 'dist/index.html',
-          dest: '.', 
-          rename: '404.html'
-        }
+       targets: [
+        { src: ['public/**/*', '!**/node_modules/**'], dest: '' }
       ]
     })
   ],
