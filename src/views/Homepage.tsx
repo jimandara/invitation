@@ -16,7 +16,6 @@ import {
   Heart, HelpCircle, PartyPopper, Users, Send, BellRing,
   X, ArrowLeft, ArrowRight, ChevronUp // GIDUGANG ANG ChevronUp PARA SA SCROLL-TO-TOP BUTTON
 } from "lucide-react";
-import Loader from "@/components/loader";
 
 // NAVLINKS (No Change)
 const navLinks = [
@@ -155,10 +154,6 @@ function Homepage() {
   const ceremonyVenue = "JAMC Tagoloan";
   const receptionVenue = "The Blue Leaf Filipinas";
   const receptionAddress = "Parañaque City";
-
-  if (loading) {
-    return <Loader />;
-  }
 
   return (
     <div className="bg-background text-foreground">

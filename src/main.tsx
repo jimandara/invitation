@@ -11,11 +11,11 @@ const Homepage = lazy(() =>
 
 const routes = [
   {
-    path: '/home',
-    element: <Navigate to="/home/invitation" />,
+    path: '/invitation',
+    element: <Navigate to="/invitation/home" />,
   },
   {
-    path: 'home/invitation',
+    path: 'invitation/home',
     element: (
       <Suspense fallback={<Loader />}>
         <Homepage />
